@@ -1,0 +1,23 @@
+---
+// 按系统语言分流:zh* → /zh/,其余 → /en/
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>Banthropic</title>
+    <script is:inline>
+      var target = (navigator.language || "en").toLowerCase().indexOf("zh") === 0 ? "/zh/" : "/en/";
+      location.replace(target);
+    </script>
+    <meta http-equiv="refresh" content="2;url=/en/" />
+  </head>
+  <body style="font-family: system-ui; background: #f0eee6; color: #141413; text-align: center; padding-top: 20vh">
+    <p>🔨 Redirecting… / 跳转中……</p>
+    <p><a href="/zh/">中文</a> · <a href="/en/">English</a></p>
+  </body>
+</html>

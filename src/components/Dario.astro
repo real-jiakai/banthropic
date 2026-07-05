@@ -1,0 +1,296 @@
+---
+// 像素美国警察:大盖帽、飞行员墨镜、八字胡、制服徽章、执勤腰带。
+// 三种状态:safe(咖啡 + 甜甜圈巡逻) / warn(冒冷汗递巨型封号通知) / doom(高举 BAN 锤 + 飞踢执法)。
+// 反差感:脸永远面无表情,执法装备越来越离谱。
+interface Props {
+  aria: string;
+  idleText: string;
+}
+const { aria, idleText } = Astro.props;
+
+// 腿在 rows 19-21,拆进状态组(站立 / 飞踢),所以主体只画到腰带
+const GRID = [
+  "......UUUUUUUU......",
+  ".....UUUUyyUUUU.....",
+  "....UUUUUUUUUUUU....",
+  "...VVVVVVVVVVVVVV...",
+  "...hssssssssssssh...",
+  "...hssssssssssssh...",
+  "...hsggggggggggsh...",
+  "...hsggggssggggsh...",
+  "...hssggssssggssh...",
+  "...hssssssSsssssh...",
+  "....ssMMMMMMMMss....",
+  ".....sssmmmmsss.....",
+  ".....ssssssssss.....",
+  "........ssss........",
+  ".....uuuuuuuuuu.....",
+  "....uuuyuTTuuuuu....",
+  "....uuuuuTTuuuuu....",
+  "....uu.uuuuuuu......",
+  "....ss.kkkYkkk......",
+];
+
+const COLORS: Record<string, string> = {
+  U: "#1e2c47", // 大盖帽
+  V: "#10151d", // 帽檐
+  y: "#d4a017", // 金色帽徽
+  h: "#26201b", // 鬓角
+  s: "#e6b48c", // 皮肤
+  S: "#c98d5f", // 鼻影
+  g: "#14100c", // 飞行员墨镜
+  M: "#4a3626", // 八字胡
+  m: "#8a4a33", // 撇嘴
+  u: "#2f4666", // 制服
+  T: "#1b2740", // 领带
+  k: "#17181c", // 执勤腰带
+  Y: "#d4a017", // 金色皮带扣
+};
+
+const PANTS = "#22314d";
+const BOOT = "#17181c";
+const SLEEVE = "#2f4666";
+const SKIN = "#e6b48c";
+
+const PX = 10;
+const OX = 30;
+const OY = 40;
+
+const cells: { x: number; y: number; c: string }[] = [];
+GRID.forEach((row, y) => {
+  [...row].forEach((ch, x) => {
+    if (ch !== ".") cells.push({ x: x * PX, y: y * PX, c: COLORS[ch]! });
+  });
+});
+---
+
+<div id="dario-stage" data-state="safe" class="relative select-none">
+  <!-- 台词气泡 -->
+  <div
+    id="dario-bubble"
+    class="relative mx-auto mb-3 w-fit max-w-[280px] rounded-xl border-2 border-ink bg-parchment px-4 py-2 text-center text-sm font-medium leading-relaxed shadow-[3px_3px_0_#141413]"
+  >
+    <span id="dario-bubble-text">{idleText}</span>
+    <span
+      class="absolute -bottom-[9px] left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-b-2 border-r-2 border-ink bg-parchment"
+    ></span>
+  </div>
+
+  <svg
+    viewBox="0 0 288 270"
+    class="mx-auto block w-full max-w-[300px]"
+    shape-rendering="crispEdges"
+    role="img"
+    aria-label={aria}
+  >
+    <!-- doom 红色警报光环 -->
+    <circle id="alert-glow" cx="130" cy="160" r="112" fill="#c53030"></circle>
+
+    <!-- 身体(帽子到腰带) -->
+    <g id="dario-body" transform={`translate(${OX},${OY})`}>
+      {cells.map(({ x, y, c }) => <rect x={x} y={y} width={PX + 0.3} height={PX + 0.3} fill={c} />)}
+      <!-- doom:墨镜后透出红光 -->
+      <g id="eyes-red">
+        <rect x="60" y="70" width="20.3" height="10.3" fill="#e5342a"></rect>
+        <rect x="120" y="70" width="20.3" height="10.3" fill="#e5342a"></rect>
+      </g>
+    </g>
+
+    <!-- 站立双腿(safe / warn) -->
+    <g id="legs-stand">
+      <rect x="90" y="230" width="80.3" height="10.3" fill={PANTS}></rect>
+      <rect x="90" y="240" width="30.3" height="10.3" fill={PANTS}></rect>
+      <rect x="140" y="240" width="30.3" height="10.3" fill={PANTS}></rect>
+      <rect x="80" y="250" width="40.3" height="10.3" fill={BOOT}></rect>
+      <rect x="140" y="250" width="40.3" height="10.3" fill={BOOT}></rect>
+    </g>
+
+    <!-- 飞踢执法(doom):一脚踹向屏幕外的你 -->
+    <g id="legs-kick">
+      <rect x="90" y="230" width="60.3" height="10.3" fill={PANTS}></rect>
+      <rect x="90" y="240" width="30.3" height="10.3" fill={PANTS}></rect>
+      <rect x="80" y="250" width="40.3" height="10.3" fill={BOOT}></rect>
+      <rect x="140" y="228" width="28.3" height="12" fill={PANTS}></rect>
+      <rect x="166" y="222" width="26.3" height="12" fill={PANTS}></rect>
+      <rect x="190" y="214" width="28" height="18" fill={BOOT}></rect>
+      <rect x="212" y="214" width="6" height="18" fill="#3a3d45"></rect>
+      <rect x="146" y="208" width="16" height="3" fill="#8a8578" opacity="0.7"></rect>
+      <rect x="154" y="200" width="13" height="3" fill="#8a8578" opacity="0.7"></rect>
+      <rect x="222" y="204" width="8" height="8" fill="#e5342a"></rect>
+      <rect x="232" y="220" width="7" height="7" fill="#e5342a"></rect>
+      <rect x="224" y="236" width="6" height="6" fill="#e5342a"></rect>
+    </g>
+
+    <!-- safe:右臂下垂 + 咖啡,左手甜甜圈,与世无争 -->
+    <g id="arm-down">
+      <rect x="170" y="210" width="20.3" height="10.3" fill={SLEEVE}></rect>
+      <rect x="170" y="220" width="20.3" height="10.3" fill={SKIN}></rect>
+      <g id="coffee">
+        <rect x="168" y="204" width="18" height="16" fill="#f7f3ea"></rect>
+        <rect x="168" y="204" width="18" height="4" fill="#6b4423"></rect>
+        <rect x="186" y="208" width="5" height="8" fill="#f7f3ea"></rect>
+        <rect x="172" y="190" width="4" height="9" fill="#b9c8cc" opacity="0.8"></rect>
+        <rect x="180" y="184" width="4" height="9" fill="#b9c8cc" opacity="0.6"></rect>
+      </g>
+      <g id="donut">
+        <rect x="56" y="198" width="24" height="24" fill="#e8899e"></rect>
+        <rect x="63" y="205" width="10" height="10" fill="#faf9f5"></rect>
+        <rect x="60" y="201" width="3" height="3" fill="#fff27a"></rect>
+        <rect x="70" y="200" width="3" height="3" fill="#74c0d8"></rect>
+        <rect x="64" y="216" width="3" height="3" fill="#c53030"></rect>
+        <rect x="74" y="212" width="3" height="3" fill="#fff27a"></rect>
+      </g>
+    </g>
+
+    <!-- warn:冒冷汗,平举一张比脸还大的封号通知 -->
+    <g id="prop-notice">
+      <g id="sweat">
+        <rect x="50" y="92" width="8" height="8" fill="#74c0d8"></rect>
+        <rect x="44" y="102" width="9" height="13" fill="#74c0d8"></rect>
+      </g>
+      <rect x="170" y="190" width="22.3" height="11" fill={SLEEVE}></rect>
+      <g transform="rotate(7 231 136)">
+        <rect x="195" y="88" width="72" height="96" fill="#fffdf5" stroke="#d8d0bd" stroke-width="1.5"></rect>
+        <rect x="203" y="96" width="56" height="8" fill="#c53030"></rect>
+        <rect x="203" y="112" width="56" height="3.5" fill="#8a8578"></rect>
+        <rect x="203" y="120" width="44" height="3.5" fill="#8a8578"></rect>
+        <rect x="203" y="128" width="50" height="3.5" fill="#8a8578"></rect>
+        <text
+          x="224"
+          y="166"
+          font-size="38"
+          font-weight="700"
+          fill="#c53030"
+          text-anchor="middle"
+          font-family="Songti SC, SimSun, serif">封</text>
+        <circle cx="250" cy="162" r="12" fill="none" stroke="#c53030" stroke-width="2" opacity="0.85"></circle>
+        <text x="250" y="166" font-size="10" fill="#c53030" text-anchor="middle" font-family="Songti SC, SimSun, serif"
+          >好</text>
+      </g>
+      <rect x="190" y="184" width="13.3" height="13.3" fill={SKIN}></rect>
+    </g>
+
+    <!-- doom:高举一把不讲道理的巨型 BAN 锤 -->
+    <g id="prop-hammer">
+      <rect x="166" y="196" width="14.3" height="12.3" fill={SLEEVE}></rect>
+      <rect x="176" y="182" width="14.3" height="12.3" fill={SLEEVE}></rect>
+      <rect x="186" y="166" width="12.3" height="14.3" fill={SLEEVE}></rect>
+      <rect x="192" y="60" width="11" height="96" fill="#7c4a21"></rect>
+      <rect x="192" y="60" width="3" height="96" fill="#9a6a3e"></rect>
+      <rect x="118" y="16" width="158" height="46" fill="#5b6470"></rect>
+      <rect x="118" y="16" width="14" height="46" fill="#3f4854"></rect>
+      <rect x="262" y="16" width="14" height="46" fill="#3f4854"></rect>
+      <rect x="136" y="22" width="6" height="6" fill="#e5342a"></rect>
+      <rect x="252" y="50" width="6" height="6" fill="#e5342a"></rect>
+      <text
+        x="197"
+        y="48"
+        font-size="26"
+        font-weight="700"
+        fill="#f5f5f4"
+        text-anchor="middle"
+        letter-spacing="6"
+        font-family="Courier New, monospace">BAN</text>
+      <rect x="188" y="146" width="18.3" height="16.3" fill={SKIN}></rect>
+    </g>
+  </svg>
+</div>
+
+<style>
+  #alert-glow,
+  #eyes-red,
+  #prop-notice,
+  #prop-hammer,
+  #legs-kick,
+  #arm-down {
+    display: none;
+  }
+
+  #dario-body {
+    animation: dario-bob 1.8s steps(2) infinite;
+  }
+  @keyframes dario-bob {
+    0%,
+    100% {
+      transform: translate(30px, 40px);
+    }
+    50% {
+      transform: translate(30px, 43px);
+    }
+  }
+
+  #dario-stage[data-state="safe"] #arm-down {
+    display: block;
+  }
+
+  #dario-stage[data-state="warn"] #prop-notice {
+    display: block;
+  }
+
+  #sweat {
+    animation: sweat-drip 1.4s steps(3) infinite;
+  }
+  @keyframes sweat-drip {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(14px);
+      opacity: 0;
+    }
+  }
+
+  #dario-stage[data-state="doom"] #prop-hammer,
+  #dario-stage[data-state="doom"] #eyes-red,
+  #dario-stage[data-state="doom"] #alert-glow,
+  #dario-stage[data-state="doom"] #legs-kick {
+    display: block;
+  }
+  #dario-stage[data-state="doom"] #legs-stand {
+    display: none;
+  }
+
+  #legs-kick {
+    animation: kick-jab 0.5s steps(2) infinite;
+  }
+  @keyframes kick-jab {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(7px);
+    }
+  }
+
+  #dario-stage[data-state="doom"] #alert-glow {
+    opacity: 0.12;
+    animation: glow-pulse 0.8s steps(2) infinite;
+  }
+  @keyframes glow-pulse {
+    50% {
+      opacity: 0.22;
+    }
+  }
+
+  #prop-hammer {
+    transform-origin: 197px 152px;
+    animation: hammer-swing 0.9s steps(3) infinite;
+  }
+  @keyframes hammer-swing {
+    0%,
+    100% {
+      transform: rotate(-5deg);
+    }
+    50% {
+      transform: rotate(6deg);
+    }
+  }
+
+  #dario-stage[data-state="doom"] #dario-bubble {
+    border-color: var(--color-alarm);
+    color: var(--color-alarm-deep);
+    box-shadow: 3px 3px 0 var(--color-alarm);
+  }
+</style>

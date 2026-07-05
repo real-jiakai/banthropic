@@ -1,0 +1,543 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Dario from "./Dario.astro";
+import { ui, clientDict, meta, type Lang } from "../i18n";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const other = lang === "zh" ? "/en/" : "/zh/";
+---
+
+<Layout lang={lang} title={meta[lang].title} description={meta[lang].description}>
+  <!-- ======= 顶栏 ======= -->
+  <header class="sticky top-0 z-50 border-b border-ink/10 bg-cream/85 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+      <a href="#top" class="flex items-center gap-2 font-bold tracking-tight">
+        <span class="text-xl">🔨</span>
+        <span class="text-lg">BANTHROPIC</span>
+        <span class="hidden rounded-full bg-clay/15 px-2 py-0.5 text-xs font-medium text-clay-deep md:inline">{t.badge}</span>
+      </a>
+      <div class="flex items-center gap-4">
+        <nav class="hidden items-center gap-4 text-sm text-smoke sm:flex">
+          <a href="#detector" class="hover:text-ink">{t.navScan}</a>
+          <a href="#factors" class="hover:text-ink">{t.navFactors}</a>
+          <a href="#notice" class="hover:text-ink">{t.navNotice}</a>
+          <a href="#faq" class="hover:text-ink">{t.navFaq}</a>
+        </nav>
+        <a
+          href={other}
+          class="rounded-full border border-ink/20 px-3 py-1 text-xs font-bold text-smoke transition hover:border-ink hover:text-ink"
+          >{t.langSwitch}</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======= Hero ======= -->
+  <section id="top" class="mx-auto max-w-6xl px-4 pb-16 pt-16 text-center sm:pt-24">
+    <p class="mb-4 inline-block rounded-full border border-alarm/30 bg-alarm/5 px-4 py-1 text-sm text-alarm">
+      {t.heroAlert}
+    </p>
+    <h1 class="text-5xl font-black tracking-tight sm:text-7xl">
+      {t.heroTitle[0]}<span class="text-clay">{t.heroTitle[1]}</span>{t.heroTitle[2]}
+    </h1>
+    <p class="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-smoke">
+      {t.heroDesc1}
+      <strong class="text-ink">{t.heroDesc2}</strong>
+    </p>
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <a
+        href="#detector"
+        class="rounded-xl bg-ink px-8 py-3 font-bold text-cream shadow-[4px_4px_0_#cc785c] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#cc785c]"
+        >{t.ctaScan}</a>
+      <a
+        href="https://github.com/LinXiaoTao/FuckClaude"
+        target="_blank"
+        rel="noopener"
+        class="rounded-xl border-2 border-ink/15 px-8 py-3 font-medium text-smoke transition hover:border-ink/40 hover:text-ink"
+        >{t.ctaInspiration}</a>
+    </div>
+  </section>
+
+  <!-- ======= 检测器 ======= -->
+  <section id="detector" class="mx-auto max-w-6xl scroll-mt-20 border-t border-ink/10 px-4 py-16">
+    <div
+      id="detector-card"
+      class="grid gap-8 rounded-3xl border border-ink/10 bg-parchment p-6 shadow-xl sm:p-10 lg:grid-cols-[1fr_340px]"
+    >
+      <div>
+        <h2 class="text-2xl font-black sm:text-3xl">{t.detectorTitle}</h2>
+        <p class="mt-2 text-sm text-smoke">{t.detectorDesc}</p>
+
+        <!-- 终端 -->
+        <div
+          id="term"
+          class="mt-6 h-56 overflow-y-auto rounded-xl bg-term p-4 font-mono text-[13px] leading-6 text-term-green shadow-inner"
+        >
+          <div class="text-term-green/60">{t.termIdle}</div>
+        </div>
+
+        <button
+          id="scan-btn"
+          class="mt-4 w-full rounded-xl bg-alarm py-3 text-lg font-black text-white shadow-[4px_4px_0_#141413] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#141413] disabled:cursor-wait disabled:opacity-60 sm:w-auto sm:px-10"
+          >{t.scanBtn}</button>
+
+        <!-- 自首环节 -->
+        <div class="mt-8">
+          <h3 class="font-bold">{t.confessTitle}</h3>
+          <div id="confessions" class="mt-3 grid gap-2 sm:grid-cols-2">
+            <!-- checkbox 由脚本渲染 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 右栏:分数 + Dario -->
+      <div class="flex flex-col items-center gap-6 lg:border-l lg:border-ink/10 lg:pl-8">
+        <div class="w-full text-center">
+          <div class="text-sm font-medium tracking-widest text-smoke">{t.scoreLabel}</div>
+          <div class="mt-1 flex items-end justify-center gap-1">
+            <span id="score-num" class="text-6xl font-black tabular-nums">--</span>
+            <span class="pb-2 text-lg text-smoke">/100</span>
+          </div>
+          <div class="mt-3 h-3 w-full overflow-hidden rounded-full bg-ink/10">
+            <div id="score-bar" class="h-full w-0 rounded-full bg-safe transition-all duration-700"></div>
+          </div>
+          <div id="verdict" class="mt-3 text-lg font-black">{t.verdictInit}</div>
+          <div id="verdict-sub" class="mt-1 text-sm text-smoke">{t.verdictInitSub}</div>
+        </div>
+        <Dario aria={t.darioAria} idleText={t.darioIdle} />
+      </div>
+    </div>
+
+    <!-- 检测结果明细 -->
+    <div id="evidence-wrap" class="mt-6 hidden rounded-2xl border border-ink/10 bg-parchment p-6">
+      <h3 class="font-bold">{t.evidenceTitle}</h3>
+      <ul id="evidence" class="mt-3 grid gap-2 text-sm sm:grid-cols-2"></ul>
+    </div>
+  </section>
+
+  <!-- ======= 罪名大全 ======= -->
+  <section id="factors" class="mx-auto max-w-6xl scroll-mt-20 px-4 py-16">
+    <h2 class="text-center text-3xl font-black sm:text-4xl">{t.factorsTitle}</h2>
+    <p class="mx-auto mt-3 max-w-xl text-center text-smoke">{t.factorsDesc}</p>
+    <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        t.factors.map((f) => (
+          <div class="group rounded-2xl border border-ink/10 bg-parchment p-5 transition hover:-translate-y-1 hover:border-clay hover:shadow-lg">
+            <div class="flex items-center justify-between">
+              <span class="text-3xl">{f.icon}</span>
+              <span class="rounded-full bg-ink/5 px-2 py-0.5 text-xs text-smoke group-hover:bg-alarm/10 group-hover:text-alarm">
+                {f.tag}
+              </span>
+            </div>
+            <h3 class="mt-3 font-bold">{f.name}</h3>
+            <p class="mt-1 text-sm leading-relaxed text-smoke">{f.desc}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ======= 红头文件 ======= -->
+  <section id="notice" class="mx-auto max-w-3xl scroll-mt-20 px-4 py-16">
+    <h2 class="text-center text-3xl font-black sm:text-4xl">{t.noticeTitle}</h2>
+    <div class="red-doc relative mt-8 rounded-lg px-6 py-10 sm:px-12">
+      <div class="red-doc-title text-center text-2xl font-bold sm:text-3xl">{t.docOrg}</div>
+      <div class="mt-2 text-center font-song text-sm text-smoke">{t.docNo}</div>
+      <hr class="mt-4 border-t-2 border-alarm" />
+      <h3 class="mt-8 text-center text-lg font-bold leading-relaxed">
+        {t.docHeading[0]}<br />{t.docHeading[1]}
+      </h3>
+      <div class="mt-6 space-y-4 text-justify leading-loose text-ink/90">
+        {t.docParas.map((p) => <p>{p}</p>)}
+      </div>
+      <div class="mt-10 text-right leading-loose">
+        <div class="font-bold">{t.docSigner}</div>
+        <div class="text-sm text-smoke">{t.docSignerSub}</div>
+        <div class="text-sm text-smoke">{t.docDate}</div>
+      </div>
+      <div
+        class="seal absolute bottom-14 right-8 flex h-28 w-28 items-center justify-center text-center text-xl font-bold leading-snug sm:right-14"
+      >
+        为你<br />好
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= FAQ ======= -->
+  <section id="faq" class="mx-auto max-w-3xl scroll-mt-20 px-4 py-16">
+    <h2 class="text-center text-3xl font-black sm:text-4xl">{t.faqTitle}</h2>
+    <div class="mt-8 space-y-3">
+      {
+        t.faqs.map((f) => (
+          <details class="group rounded-xl border border-ink/10 bg-parchment px-5 py-4">
+            <summary class="cursor-pointer list-none font-bold">
+              <span class="mr-2 text-clay">Q:</span>
+              {f.q}
+            </summary>
+            <p class="mt-2 pl-6 text-smoke">
+              <span class="mr-2 font-bold text-alarm">A:</span>
+              {f.a}
+            </p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ======= 页脚 ======= -->
+  <footer class="border-t border-ink/10 bg-parchment">
+    <div class="mx-auto max-w-6xl px-4 py-10 text-center text-sm leading-relaxed text-smoke">
+      <p class="font-bold text-ink">{t.footerSlogan}</p>
+      <p class="mt-3">{t.footerDisclaimer}</p>
+      <p class="mt-3">
+        {t.footerCredit1}
+        <a
+          href="https://github.com/LinXiaoTao/FuckClaude"
+          target="_blank"
+          rel="noopener"
+          class="font-medium text-clay-deep underline underline-offset-2 hover:text-clay">LinXiaoTao/FuckClaude</a
+        >
+        {t.footerCredit2}
+      </p>
+      <p class="mt-3 font-mono text-xs text-smoke/70">{t.footerMadeBy}</p>
+      <p class="mt-1 font-mono text-xs text-smoke/70">{t.footerPowered}</p>
+    </div>
+  </footer>
+
+  <script type="application/json" id="i18n-client" set:html={JSON.stringify(clientDict[lang])} />
+</Layout>
+
+<script>
+  // ============ i18n ============
+  type Entry = { label: string; log: string };
+  type Dict = {
+    joinSep: string;
+    btnRescan: string;
+    scan: { init1: string; init2: string; ipAsk: string; hint: string; done: string };
+    bands: { max: number; state: string; name: string; sub: string; bubble: string; bar: string }[];
+    sig: Record<string, Entry>;
+    confessions: { label: string; sub: string; pts: number }[];
+  };
+  const D: Dict = JSON.parse(document.getElementById("i18n-client")!.textContent!);
+
+  const fmt = (s: string, vars: Record<string, string | number> = {}) =>
+    s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ""));
+
+  type Signal = { label: string; pts: number; hit: boolean; log: string };
+  const sig = (key: string, pts: number, vars: Record<string, string | number> = {}): Signal => {
+    const e = D.sig[key]!;
+    const v = { ...vars, pts };
+    return { label: fmt(e.label, v), pts, hit: pts > 0, log: fmt(e.log, v) };
+  };
+
+  // ============ 本地检测 ============
+  function detectLocalSignals(): Signal[] {
+    const signals: Signal[] = [];
+
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone ?? "unknown";
+    const cnZones = ["Asia/Shanghai", "Asia/Chongqing", "Asia/Harbin", "Asia/Urumqi", "Asia/Hong_Kong", "Asia/Macau"];
+    const offset = -new Date().getTimezoneOffset() / 60;
+    if (cnZones.includes(tz)) signals.push(sig("tzCn", 18, { tz }));
+    else if (offset === 8) signals.push(sig("tzG8", 8, { tz }));
+    else signals.push(sig("tzOk", 0, { tz }));
+
+    const lang = navigator.language || "";
+    const langs = navigator.languages ?? [];
+    if (lang.toLowerCase().startsWith("zh")) signals.push(sig("langZh", 15, { lang }));
+    else if (langs.some((l) => l.toLowerCase().startsWith("zh"))) signals.push(sig("langList", 8, { lang }));
+    else signals.push(sig("langOk", 0, { lang }));
+
+    const fonts = ["PingFang SC", "Microsoft YaHei", "SimSun", "Hiragino Sans GB", "Noto Sans CJK SC", "WenQuanYi Micro Hei"];
+    const found = detectFonts(fonts);
+    if (found.length > 0) {
+      const pts = Math.min(4 + found.length * 2, 12);
+      const key = found.includes("PingFang SC") ? "fontsPing" : "fonts";
+      signals.push(sig(key, pts, { n: found.length, first: found[0]!, fonts: found.join(D.joinSep) }));
+    } else {
+      signals.push(sig("fontsOk", 0));
+    }
+
+    const dateStr = new Intl.DateTimeFormat(undefined, { dateStyle: "long" }).format(new Date());
+    if (/[年月日]/.test(dateStr)) signals.push(sig("dateCn", 6, { date: dateStr }));
+    else signals.push(sig("dateOk", 0, { date: dateStr }));
+
+    if (canRenderEmoji("🀄")) signals.push(sig("emojiYes", 4));
+    else signals.push(sig("emojiNo", 0));
+
+    return signals;
+  }
+
+  function detectFonts(candidates: string[]): string[] {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return [];
+    const text = "中文字体检测abc123";
+    const base = ["monospace", "sans-serif", "serif"];
+    const baseWidths = base.map((b) => {
+      ctx.font = `32px ${b}`;
+      return ctx.measureText(text).width;
+    });
+    return candidates.filter((f) =>
+      base.some((b, i) => {
+        ctx.font = `32px "${f}", ${b}`;
+        return ctx.measureText(text).width !== baseWidths[i];
+      }),
+    );
+  }
+
+  function canRenderEmoji(emoji: string): boolean {
+    const canvas = document.createElement("canvas");
+    canvas.width = 32;
+    canvas.height = 32;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return false;
+    ctx.textBaseline = "top";
+    ctx.font = "28px sans-serif";
+    ctx.fillText(emoji, 0, 0);
+    return ctx.getImageData(8, 8, 16, 16).data.some((v, i) => i % 4 === 3 && v > 0);
+  }
+
+  // ============ IP 检测(唯一的网络请求,用于定罪) ============
+  // 免费 + 无需 key + 带 CORS 的情报源,按顺序尝试,第一个成功的说了算
+  const UNSUPPORTED = ["CN", "HK", "MO", "RU", "BY", "IR", "KP", "SY", "CU", "AF", "MM"];
+  const DC_KEYWORDS = [
+    "alibaba", "aliyun", "tencent", "huawei", "amazon", "aws", "google", "microsoft", "azure", "oracle",
+    "digitalocean", "vultr", "linode", "akamai", "ovh", "hetzner", "cloudflare", "hosting", "datacenter",
+    "data center", "server", "idc", "cloud", "vps", "leaseweb", "m247", "choopa", "gcore", "zenlayer",
+    "ucloud", "kingsoft", "bandwagon", "racknerd", "psychz", "colocrossing", "dmit", "bgp",
+  ];
+
+  type IpInfo = { cc: string; country: string; asName: string; isDc: boolean };
+
+  async function fetchJson(url: string, ms = 5000): Promise<any> {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), ms);
+    try {
+      const res = await fetch(url, { signal: ctrl.signal });
+      if (!res.ok) throw new Error(String(res.status));
+      return await res.json();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  const IP_PROVIDERS: { url: string; parse: (d: any) => IpInfo }[] = [
+    {
+      // 自带 is_datacenter 判定,约 1000 次/天
+      url: "https://api.ipapi.is/",
+      parse: (d) => ({
+        cc: d.location?.country_code ?? "",
+        country: d.location?.country ?? "",
+        asName: d.asn?.org || d.company?.name || "",
+        isDc:
+          d.is_datacenter === true ||
+          d.is_vpn === true ||
+          d.is_proxy === true ||
+          d.asn?.type === "hosting" ||
+          d.company?.type === "hosting",
+      }),
+    },
+    {
+      // 兜底 1:约 10000 次/月,靠关键词判机房
+      url: "https://ipwho.is/",
+      parse: (d) => {
+        if (d.success === false) throw new Error("rate limited");
+        return {
+          cc: d.country_code ?? "",
+          country: d.country ?? "",
+          asName: d.connection?.org || d.connection?.isp || "",
+          isDc: false,
+        };
+      },
+    },
+    {
+      // 兜底 2:约 1000 次/天,靠关键词判机房
+      url: "https://ipapi.co/json/",
+      parse: (d) => {
+        if (d.error) throw new Error(d.reason ?? "error");
+        return { cc: d.country_code ?? "", country: d.country_name ?? "", asName: d.org ?? "", isDc: false };
+      },
+    },
+  ];
+
+  let ipCache: Signal[] | null = null;
+  async function detectIpSignals(): Promise<Signal[]> {
+    if (ipCache) return ipCache;
+
+    let info: IpInfo | null = null;
+    for (const p of IP_PROVIDERS) {
+      try {
+        info = p.parse(await fetchJson(p.url));
+        break;
+      } catch {
+        // 这家不肯招,换下一家
+      }
+    }
+    if (!info) return [sig("ipFail", 0)];
+
+    const out: Signal[] = [];
+    const country = info.country || info.cc || "unknown";
+    if (info.cc === "CN" || info.cc === "HK" || info.cc === "MO") out.push(sig("ipCn", 12, { country }));
+    else if (UNSUPPORTED.includes(info.cc)) out.push(sig("ipUnsupported", 12, { country }));
+    else out.push(sig("ipOk", 0, { country }));
+
+    const lower = info.asName.toLowerCase();
+    if (info.isDc || DC_KEYWORDS.some((k) => lower.includes(k))) {
+      out.push(sig("ipDc", 10, { as: info.asName || "???" }));
+    }
+    ipCache = out; // 只缓存成功结果,失败下次重试
+    return out;
+  }
+
+  // ============ DOM ============
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const term = $("term");
+  const scanBtn = $<HTMLButtonElement>("scan-btn");
+  const scoreNum = $("score-num");
+  const scoreBar = $("score-bar");
+  const verdict = $("verdict");
+  const verdictSub = $("verdict-sub");
+  const stage = $("dario-stage");
+  const bubble = $("dario-bubble-text");
+  const evidenceWrap = $("evidence-wrap");
+  const evidence = $("evidence");
+  const confessionsBox = $("confessions");
+  const detectorCard = $("detector-card");
+
+  let autoSignals: Signal[] = [];
+  let scanned = false;
+
+  // 渲染自首 checkbox
+  for (const c of D.confessions) {
+    const label = document.createElement("label");
+    label.className =
+      "flex cursor-pointer items-start gap-2 rounded-lg border border-ink/10 bg-cream px-3 py-2 text-sm transition hover:border-clay has-checked:border-alarm has-checked:bg-alarm/5";
+    label.innerHTML = `
+      <input type="checkbox" data-pts="${c.pts}" class="mt-0.5 accent-[#c53030]" />
+      <span><span class="font-medium">${c.label}</span>
+      <span class="block text-xs text-smoke">${c.sub} (+${c.pts})</span></span>`;
+    label.querySelector("input")!.addEventListener("change", () => {
+      if (scanned) applyScore(false);
+    });
+    confessionsBox.appendChild(label);
+  }
+
+  function termLine(text: string, cls = "") {
+    const div = document.createElement("div");
+    div.textContent = text;
+    if (cls) div.className = cls;
+    term.appendChild(div);
+    term.scrollTop = term.scrollHeight;
+    return div;
+  }
+
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  // 逐字打印,营造被审讯的氛围;若浏览器节流定时器(后台标签页),自动降级为整行输出
+  let timersThrottled = false;
+  async function typeLine(text: string) {
+    const line = termLine("");
+    if (timersThrottled || document.hidden) {
+      line.textContent = text;
+      term.scrollTop = term.scrollHeight;
+      return;
+    }
+    const start = performance.now();
+    let typed = 0;
+    for (const ch of text) {
+      line.textContent += ch;
+      typed++;
+      term.scrollTop = term.scrollHeight;
+      await sleep(8);
+      if (performance.now() - start > typed * 60 + 200) {
+        timersThrottled = true;
+        line.textContent = text;
+        break;
+      }
+    }
+  }
+
+  function currentScore(): number {
+    const auto = autoSignals.reduce((s, x) => s + x.pts, 0);
+    const conf = [...confessionsBox.querySelectorAll<HTMLInputElement>("input:checked")].reduce(
+      (s, i) => s + Number(i.dataset.pts),
+      0,
+    );
+    return Math.min(100, auto + conf);
+  }
+
+  const bandOf = (score: number) => D.bands.find((b) => score <= b.max) ?? D.bands[D.bands.length - 1]!;
+
+  function applyScore(animate: boolean) {
+    const score = currentScore();
+    const band = bandOf(score);
+
+    if (animate) {
+      const t0 = performance.now();
+      const dur = 900;
+      const timer = setInterval(() => {
+        const p = Math.min(1, (performance.now() - t0) / dur);
+        scoreNum.textContent = String(Math.round(score * p));
+        if (p >= 1) clearInterval(timer);
+      }, 30);
+    } else {
+      scoreNum.textContent = String(score);
+    }
+
+    scoreBar.style.width = `${score}%`;
+    scoreBar.style.background = band.bar;
+    verdict.textContent = band.name;
+    verdictSub.textContent = band.sub;
+    stage.dataset.state = band.state;
+    bubble.textContent = band.bubble;
+    detectorCard.classList.toggle("doom-shake", band.state === "doom");
+  }
+
+  function renderEvidence() {
+    evidence.innerHTML = "";
+    for (const s of autoSignals) {
+      const li = document.createElement("li");
+      li.className = `flex items-center justify-between rounded-lg px-3 py-2 ${
+        s.hit ? "bg-alarm/5 text-alarm-deep" : "bg-ink/5 text-smoke"
+      }`;
+      li.innerHTML = `<span>${s.hit ? "🚩" : "✅"} ${s.label}</span><span class="font-mono font-bold">+${s.pts}</span>`;
+      evidence.appendChild(li);
+    }
+    evidenceWrap.classList.remove("hidden");
+  }
+
+  scanBtn.addEventListener("click", async () => {
+    scanBtn.disabled = true;
+    term.innerHTML = "";
+    termLine(D.scan.init1);
+    termLine(D.scan.init2);
+    await sleep(500);
+
+    autoSignals = detectLocalSignals();
+    for (const s of autoSignals) {
+      await typeLine(s.log);
+      await sleep(180);
+    }
+
+    termLine(D.scan.ipAsk, "text-term-green/70");
+    const ipSignals = await detectIpSignals();
+    for (const s of ipSignals) {
+      await typeLine(s.log);
+      await sleep(180);
+    }
+    autoSignals = [...autoSignals, ...ipSignals];
+
+    await sleep(300);
+    termLine(D.scan.hint, "text-yellow-300");
+    termLine(D.scan.done, "term-cursor");
+
+    scanned = true;
+    renderEvidence();
+    applyScore(true);
+    scanBtn.disabled = false;
+    scanBtn.textContent = D.btnRescan;
+  });
+</script>

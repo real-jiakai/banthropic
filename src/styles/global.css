@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #f0eee6;
+  --color-parchment: #faf9f5;
+  --color-ink: #141413;
+  --color-smoke: #5e5d59;
+  --color-clay: #cc785c;
+  --color-clay-deep: #b05730;
+  --color-alarm: #c53030;
+  --color-alarm-deep: #8f1d1d;
+  --color-safe: #3d7a4f;
+  --color-warn: #b7791f;
+  --color-term: #0d1117;
+  --color-term-green: #7ee787;
+  --font-hei: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-song: "Songti SC", "SimSun", "Noto Serif SC", serif;
+  --font-pixel: "Courier New", "SF Mono", ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-hei);
+}
+
+/* ---- terminal cursor ---- */
+.term-cursor::after {
+  content: "▊";
+  animation: blink 0.9s steps(1) infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ---- doom shake for the whole detector card ---- */
+.doom-shake {
+  animation: doomshake 0.35s steps(2) infinite;
+}
+@keyframes doomshake {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(2px, -1px);
+  }
+  100% {
+    transform: translate(-2px, 1px);
+  }
+}
+
+/* ---- official red-header document ---- */
+.red-doc {
+  background: var(--color-parchment);
+  border: 1px solid #ddd5c4;
+  box-shadow: 0 12px 40px rgb(20 20 19 / 0.08);
+}
+.red-doc-title {
+  font-family: var(--font-song);
+  color: var(--color-alarm);
+  letter-spacing: 0.12em;
+}
+.seal {
+  border: 3px solid var(--color-alarm);
+  color: var(--color-alarm);
+  border-radius: 9999px;
+  transform: rotate(-14deg);
+  opacity: 0.85;
+  font-family: var(--font-song);
+}
